@@ -1,0 +1,25 @@
+# Public IP for the Bastion Host
+resource "azurerm_public_ip" "bastion_ip" {
+  name                = "${var.bastion_host_name}-public-ip"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
+# Azure Bastion Host
+resource "azurerm_bastion_host" "bastion" {
+  name                = var.bastion_host_name
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  ip_configuration {
+    name                 = "bastion-ip-config"
+    subnet_id            = azurerm_subnet.bastion_subnet.id
+    public_ip_address_id = azurerm_public_ip.bastion_ip.id
+  }
+
+  sku {
+    tier = "Standard" # Or use "Basic" for lower-cost option
+  }
+}
